@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/main">
+        <file>full-battery.png</file>
+        <file>online.png</file>
+        <file>src=http _5b0988e595225.cdn.sohucs.com_q_70,c_zoom,w_640_images_20181017_32af56c42aea4c239f7867a95a3d5359.jpeg&amp;refer=http _5b0988e595225.cdn.sohucs.com&amp;app=2002&amp;size=f9999,10000&amp;q=a80&amp;n=0&amp;g=0n&amp;fmt=jpeg.jpg</file>
+        <file>播放.png</file>
+        <file>上一首.png</file>
+        <file>下一首.png</file>
+        <file>进度条.png</file>
+    </qresource>
+</RCC>
