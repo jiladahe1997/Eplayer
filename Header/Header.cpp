@@ -32,11 +32,11 @@ Header::Header(QWidget * parent) : QWidget(parent)
     // status->setStyleSheet("QLabel { background-color : red; color : blue; }");
     status->stackUnder(username);
 
-    QLabel * time = new QLabel(parent);
-    time->setText("2021-01-13 20:10");
-    time->setFont(font);
-    time->setGeometry(800,20,200,40);
-    // time->setStyleSheet("QLabel { background-color : red; color : blue; }");
+    this->time = new QLabel(parent);
+    this->time->setText("2021-01-13 20:10:00");
+    this->time->setFont(font);
+    this->time->setGeometry(700,20,250,40);
+    // this->time->setStyleSheet("QLabel { background-color : red; color : blue; }");
 
     QLabel * battery = new QLabel(parent);
     battery->setAlignment(Qt::AlignTop);
@@ -51,4 +51,23 @@ Header::Header(QWidget * parent) : QWidget(parent)
     batteryText->setGeometry(1120,20,80,40);
     // batteryText->setStyleSheet("QLabel { background-color : red; color : blue; }");
 
+    /* 启动时间自动更新 */
+    HeaderTimeUpdaterThread * headerTimeUpdaterThread = new HeaderTimeUpdaterThread(this->time);
+    headerTimeUpdaterThread->start();
 }
+
+HeaderTimeUpdaterThread::HeaderTimeUpdaterThread(QLabel * targetQLabel) {
+    this->targetQLabel = targetQLabel;
+}
+
+void HeaderTimeUpdaterThread::run() {
+    while(1){
+        qInfo("更新时间\r\n");
+        Time time;
+        const std::string timeStr = time.getTimeString();
+        this->targetQLabel->setText(QString::fromStdString(timeStr));
+        QThread::msleep(100);
+    }
+}
+
+

@@ -10,12 +10,14 @@ CONFIG += c++11
 
 SOURCES += \
     Content/Content.cpp \
+    Header/DateTime.cpp \
     Header/Header.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     Content/Content.h \
+    Header/DateTime.h \
     Header/Header.h \
     mainwindow.h
 
