@@ -1,4 +1,8 @@
 #include "Content.h"
+#include <QPushButton>
+#include <string>
+
+using namespace std;
 
 Content::Content(QWidget * parent){
     QLabel * coverImg = new QLabel(parent);
@@ -7,7 +11,7 @@ Content::Content(QWidget * parent){
     coverImg->setScaledContents(true);
 
     QLabel * songName = new QLabel(parent);
-    songName->setText("有人");
+    songName->setText("Eplayer MP3播放器");
     QFont font = songName->font();
     font.setPixelSize(58);
     songName->setFont(font);
@@ -16,30 +20,46 @@ Content::Content(QWidget * parent){
     //songName->setStyleSheet("QLabel { background-color : red; color : blue; }");
 
     QLabel * singer = new QLabel(parent);
-    singer->setText("赵钶");
+    singer->setText("author: renmingrui");
     font.setPixelSize(33);
     singer->setAlignment(Qt::AlignCenter);
     singer->setFont(font);
     singer->setGeometry(901,294,100,35);
     //singer->setStyleSheet("QLabel { background-color : red; color : blue; }");
 
-    QLabel * controlPlay = new QLabel(parent);
-    controlPlay->setPixmap(QPixmap(QString::fromUtf8(":/main/播放.png")));
+    QPushButton * controlPlay = new QPushButton(parent);
+    QPixmap pixmap = QPixmap(QString::fromUtf8(":/main/播放.png"));
+    controlPlay->setIcon(pixmap);
     controlPlay->setGeometry(885,419,125,125);
-    controlPlay->setScaledContents(true);
+    controlPlay->setIconSize(QSize(125,125));
+    controlPlay->setFlat(true);
+    connect(controlPlay, &QPushButton::clicked, this, &Content::onPlayeClick);
 
-    QLabel * controlNext = new QLabel(parent);
-    controlNext->setPixmap(QPixmap(QString::fromUtf8(":/main/下一首.png")));
+    QPushButton * controlNext = new QPushButton(parent);
+    pixmap = QPixmap(QString::fromUtf8(":/main/下一首.png"));
+    controlNext->setIcon(pixmap);
     controlNext->setGeometry(1124,453,64,64);
-    controlNext->setScaledContents(true);
+    controlNext->setIconSize(QSize(64,64));
+    controlNext->setFlat(true);
 
-    QLabel * controlPre = new QLabel(parent);
-    controlPre->setPixmap(QPixmap(QString::fromUtf8(":/main/上一首.png")));
+    QPushButton * controlPre = new QPushButton(parent);
+    pixmap = QPixmap(QString::fromUtf8(":/main/上一首.png"));
+    controlPre->setIcon(pixmap);
     controlPre->setGeometry(696,453,64,64);
-    controlPre->setScaledContents(true);
+    controlPre->setIconSize(QSize(64,64));
+    controlPre->setFlat(true);
 
     QLabel * process = new QLabel(parent);
     process->setPixmap(QPixmap(QString::fromUtf8(":/main/进度条.png")));
     process->setGeometry(814,618,282,14);
     process->setScaledContents(true);
+
+    this->netEaseMusicClient = new NetEaseMusicClient();
+    this->player = new Player();
+}
+
+bool Content::onPlayeClick(void){
+    qInfo() << "点击事件触发" << Qt::endl;
+    string url = this->netEaseMusicClient->getRandomMusicUrl();
+    return player->play(url);
 }

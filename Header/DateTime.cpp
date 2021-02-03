@@ -11,6 +11,6 @@ std::string Time::getTimeString(){
     process->waitForFinished(-1);
     QByteArray res = process->readAll();
     delete(process);
-    qInfo("接收到命令行返回 %s \r\n",res.toStdString().c_str());
+    //qInfo("接收到命令行返回 %s \r\n",res.toStdString().c_str());
     return res.toStdString().substr(0, 19);
 }

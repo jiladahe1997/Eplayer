@@ -62,7 +62,7 @@ HeaderTimeUpdaterThread::HeaderTimeUpdaterThread(QLabel * targetQLabel) {
 
 void HeaderTimeUpdaterThread::run() {
     while(1){
-        qInfo("更新时间\r\n");
+        //qInfo("更新时间\r\n");
         Time time;
         const std::string timeStr = time.getTimeString();
         this->targetQLabel->setText(QString::fromStdString(timeStr));
