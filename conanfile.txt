@@ -1,0 +1,9 @@
+[requires]
+libcurl/7.74.0
+nlohmann_json/3.9.1
+
+[generators]
+qmake
+
+[options]
+libcurl:shared=True

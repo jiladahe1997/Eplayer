@@ -1,8 +1,10 @@
-QT       += core gui
+QT       += core gui multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
+CONFIG += conan_basic_setup
+include(./build/conanbuildinfo.pri)
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -10,6 +12,8 @@ CONFIG += c++11
 
 SOURCES += \
     Content/Content.cpp \
+    Content/NetEaseMusicClient.cpp \
+    Content/Player.cpp \
     Header/DateTime.cpp \
     Header/Header.cpp \
     main.cpp \
@@ -17,6 +21,8 @@ SOURCES += \
 
 HEADERS += \
     Content/Content.h \
+    Content/NetEaseMusicClient.h \
+    Content/Player.h \
     Header/DateTime.h \
     Header/Header.h \
     mainwindow.h
@@ -31,3 +37,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     image.qrc
+
+DISTFILES += \
+    ../../../Desktop/IMG/loading.png
