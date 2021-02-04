@@ -17,6 +17,7 @@
  *      4.内存资源管理
  */
 #include <string>
+#include <QLabel>
 
 using namespace std;
 
@@ -29,5 +30,7 @@ private:
     QLabel *label;
 public:
     Loading(int x, int y, string text);
+    void show();
+    void hide();
     ~Loading();
 };

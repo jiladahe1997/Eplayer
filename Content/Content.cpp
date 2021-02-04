@@ -1,9 +1,11 @@
 #include "Content.h"
 #include <QPushButton>
 #include <string>
+#include <thread>
+#include "Loading.h"
 
 using namespace std;
-
+Loading * loading;
 Content::Content(QWidget * parent){
     QLabel * coverImg = new QLabel(parent);
     coverImg->setPixmap(QPixmap(QString::fromUtf8(":/main/src=http _5b0988e595225.cdn.sohucs.com_q_70,c_zoom,w_640_images_20181017_32af56c42aea4c239f7867a95a3d5359.jpeg&refer=http _5b0988e595225.cdn.sohucs.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg.jpg")));
@@ -54,12 +56,25 @@ Content::Content(QWidget * parent){
     process->setGeometry(814,618,282,14);
     process->setScaledContents(true);
 
+    loading = new Loading(20,60,"jiladahe1997");
+
     this->netEaseMusicClient = new NetEaseMusicClient();
     this->player = new Player();
 }
 
-bool Content::onPlayeClick(void){
+void playClick(Content *content) {
     qInfo() << "点击事件触发" << Qt::endl;
-    string url = this->netEaseMusicClient->getRandomMusicUrl();
-    return player->play(url);
+    CURLcode ret = content->netEaseMusicClient->login();
+    if(ret != CURLE_OK) {
+        qWarning("登录失败!");
+    }
+    string url = content->netEaseMusicClient->getRandomMusicUrl();
+    content->player->play(url);
+}
+
+bool Content::onPlayeClick(void){
+    loading->hide();
+    std::thread t1(playClick,this);
+    t1.detach();
+    return true;
 }

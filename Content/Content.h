@@ -9,7 +9,7 @@
 
 class Content : public QWidget {
     Q_OBJECT
-private:
+public:
     NetEaseMusicClient * netEaseMusicClient;
     Player * player;
 public:

@@ -1,17 +1,22 @@
 #include "NetEaseMusicClient.h"
+
 #include <pthread.h>
 #include <QDebug>
-#include "nlohmann/json.hpp"
 #include <iostream>
 #include <string>
 
+#include "nlohmann/json.hpp"
+
+#include "Loading.h"
+#include <thread>
+extern Loading *loading;
 NetEaseMusicClient::NetEaseMusicClient(){
-    CURLcode ret = this->login();
-    if(ret != CURLE_OK) {
-        qWarning("登录失败!");
-    }
+
 }
 
+/**
+ * c++中使用curl不能传对象成员函数，否则会报错
+ */
 size_t NetEaseMusicClient::httpGetCB(void * buffer, size_t size, size_t nmemb, void * userp){
     qInfo() << "触发http回调" << Qt::endl << "接收到内容:" << Qt::endl;
     //qInfo() << (char*)buffer << Qt::endl;
@@ -41,6 +46,10 @@ CURLcode NetEaseMusicClient::login(void) {
     json j ;
     string str;
 
+    //std::this_thread::sleep_for (std::chrono::seconds(2));    
+
+    loading->show();
+
     ret = this->httpGet("182.92.164.220:3000/login/cellphone?phone=13320949321&password=Freedom1997",
             //std::bind(&NetEaseMusicClient::httpGetCB,this,_1,_2,_3,_4),
             httpGetCB2,
@@ -49,7 +58,12 @@ CURLcode NetEaseMusicClient::login(void) {
         qWarning("login https request fail, error code is %d",ret);
         goto error1;
     }
+    /* 末尾加/0 */
+    httpRes.buffer = std::realloc(httpRes.buffer ,httpRes.size+1);
+    memset((char*)httpRes.buffer+httpRes.size,0,1);
+    httpRes.size+=1;
     str=string((char*)(httpRes.buffer));
+    //std::this_thread::sleep_for (std::chrono::seconds(2));    
     try
     {
         j = json::parse(str);
@@ -62,7 +76,7 @@ CURLcode NetEaseMusicClient::login(void) {
     //std::cout << "登录成功,cookie:" << j["cookie"] << std::endl;
     //qInfo("%s", j["cookie"].get<std::string>());
     qInfo() << "登录成功,cookie:" << QString::fromStdString((j["cookie"].get<std::string>())) << Qt::endl;
-
+    loading->hide();
 error1:
     free(httpRes.buffer);
 

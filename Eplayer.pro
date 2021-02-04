@@ -12,6 +12,7 @@ include(./build/conanbuildinfo.pri)
 
 SOURCES += \
     Content/Content.cpp \
+    Content/Loading.cpp \
     Content/NetEaseMusicClient.cpp \
     Content/Player.cpp \
     Header/DateTime.cpp \
@@ -21,6 +22,7 @@ SOURCES += \
 
 HEADERS += \
     Content/Content.h \
+    Content/Loading.h \
     Content/NetEaseMusicClient.h \
     Content/Player.h \
     Header/DateTime.h \
