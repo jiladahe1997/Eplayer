@@ -64,11 +64,15 @@ Content::Content(QWidget * parent){
 
 void playClick(Content *content) {
     qInfo() << "点击事件触发" << Qt::endl;
+    Loading * loading = new Loading("登录中");
     CURLcode ret = content->netEaseMusicClient->login();
     if(ret != CURLE_OK) {
         qWarning("登录失败!");
     }
+    delete(loading);
+    loading = new Loading("获取URL中");
     string url = content->netEaseMusicClient->getRandomMusicUrl();
+    delete(loading);
     content->player->play(url);
 }
 

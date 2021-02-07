@@ -26,7 +26,7 @@ private:
         void * data_buffer);
     size_t httpGetCB(void * buffer, size_t szie, size_t nmemb, void * userp);
 private:
-
+    static string cookie;
 public:
     CURLcode login(void);
     NetEaseMusicClient(void);

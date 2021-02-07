@@ -4,12 +4,15 @@
 #include <QDebug>
 #include <iostream>
 #include <string>
+#include <random>
 
 #include "nlohmann/json.hpp"
 
 #include "Loading.h"
 #include <thread>
-extern Loading *loading;
+
+string NetEaseMusicClient::cookie = string();
+
 NetEaseMusicClient::NetEaseMusicClient(){
 
 }
@@ -76,6 +79,7 @@ CURLcode NetEaseMusicClient::login(void) {
     //std::cout << "登录成功,cookie:" << j["cookie"] << std::endl;
     //qInfo("%s", j["cookie"].get<std::string>());
     qInfo() << "登录成功,cookie:" << QString::fromStdString((j["cookie"].get<std::string>())) << Qt::endl;
+    this->cookie = j["cookie"].get<std::string>();
     //loading->hide();
 error1:
     free(httpRes.buffer);
@@ -95,14 +99,71 @@ CURLcode NetEaseMusicClient::httpGet(string url,
     curl_easy_setopt(easyhandle, CURLOPT_WRITEFUNCTION, cb);
     curl_easy_setopt(easyhandle, CURLOPT_WRITEDATA,userp);
     curl_easy_setopt(easyhandle, CURLOPT_VERBOSE, 1L);
+    curl_easy_setopt(easyhandle, CURLOPT_COOKIE, this->cookie.c_str());
+
     return curl_easy_perform(easyhandle);
 }
 
 string NetEaseMusicClient::getRandomMusicUrl(void) {
     /* 获取所有喜欢音乐 */
-    //this->httpGet("http://182.92.164.220:3000/likelist", this->httpGetCB);
-    // return ;
-    return "https://jiladahe1997-1256609098.cos.ap-chengdu.myqcloud.com/test/obj_w5zDlMODwrDDiGjCn8Ky_3035941127_7a87_6039_5d37_67c00da5ea62d90bbea8cd2aa8092aac.mp3";
+    struct HttpRes httpRes = {
+        .size = 0,
+        .buffer = NULL
+    };
+    CURLcode ret = this->httpGet("http://182.92.164.220:3000/likelist", httpGetCB2, &httpRes);
+    if(ret != CURLE_OK){
+        throw runtime_error("httpget error");
+    }
+    /* 末尾加/0 */
+    httpRes.buffer = std::realloc(httpRes.buffer ,httpRes.size+1);
+    memset((char*)httpRes.buffer+httpRes.size,0,1);
+    httpRes.size+=1;
+    long randomSongId=0;
+    try
+    {
+        nlohmann::json j;
+        j = nlohmann::json::parse((char*)(httpRes.buffer));
+        int songCount = j["ids"].size();
+        random_device rd;
+        std::mt19937 gen(rd());
+        //default_random_engine e;
+        uniform_int_distribution<int> u(0, songCount-1);
+        int randomNum = u(gen);
+        randomSongId = j["ids"][randomNum].get<int64_t>();
+    }
+    catch(const std::exception& e)
+    {
+        qWarning("json parse error, input is %s",httpRes.buffer);
+        throw &e;
+    }
+
+    /* 获取指定音乐的链接 */
+    struct HttpRes httpRes2 = {
+        .size = 0,
+        .buffer = NULL
+    };
+    ret = this->httpGet("http://182.92.164.220:3000/song/url?id="+to_string(randomSongId), httpGetCB2, &httpRes2);
+    if(ret != CURLE_OK){
+        throw runtime_error("httpget error");
+    }
+    /* 末尾加/0 */
+    httpRes2.buffer = std::realloc(httpRes2.buffer ,httpRes2.size+1);
+    memset((char*)httpRes2.buffer+httpRes2.size,0,1);
+    httpRes2.size+=1;
+    string url;
+    try
+    {
+        nlohmann::json j;
+        j = nlohmann::json::parse((char*)(httpRes2.buffer));
+        url = j["data"][0]["url"].get<string>();
+    }
+    catch(const std::exception& e)
+    {
+        qWarning("json parse error, input is %s",httpRes2.buffer);
+        throw &e;
+    }    
+    return url;
+    // return "https://jiladahe1997-1256609098.cos.ap-chengdu.myqcloud.com/test/obj_w5zDlMODwrDDiGjCn8Ky_3035941127_7a87_6039_5d37_67c00da5ea62d90bbea8cd2aa8092aac.mp3";
 }
 
 // NetEaseMusicClient::HttpRes::HttpRes(void){

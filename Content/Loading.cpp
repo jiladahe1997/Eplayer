@@ -13,8 +13,7 @@ Loading::Loading(string text) {
         throw runtime_error("必须先在Contnet中初始化label");
     }
     this->labelText->setText(QString::fromStdString(text));
-    this->labelText->show();
-    this->labelImg->show();
+    maskWidget->show();
     LoadingCallRecord *loadingCallRecord = new LoadingCallRecord(this, text);
     this->callRecord->push_back(loadingCallRecord);
 }
@@ -23,18 +22,20 @@ Loading::~Loading(){
     if(this->labelImg == nullptr || this->labelText == nullptr){
         throw runtime_error("必须先在Contnet中初始化label");
     }
-    for(vector<LoadingCallRecord*>::iterator iter=this->callRecord->begin();iter!=this->callRecord->end();++iter){
-        if((*iter)->_loading == this)
+    for(vector<LoadingCallRecord*>::iterator iter=this->callRecord->begin();iter!=this->callRecord->end();){
+        if((*iter)->_loading == this){
             delete(*iter);
-            this->callRecord->erase(iter);
+            iter = this->callRecord->erase(iter);
+        }else{
+            ++iter;
+        }
     }
     size_t leftSize = this->callRecord->size();
     if(leftSize != 0){
         this->labelText->setText(QString::fromStdString(this->callRecord->back()->_text));
     }
     else{
-        this->labelText->hide();
-        this->labelImg->hide();
+        maskWidget->hide();
     }
 }
 
@@ -58,5 +59,5 @@ void Loading::init(QWidget *parent){
     Loading::labelText->setStyleSheet("background-color: rgba(255, 255, 255, 180);");
     Loading::labelText->setAlignment(Qt::AlignCenter);
     Loading::labelText->raise();
-    
+    maskWidget->hide();
 }

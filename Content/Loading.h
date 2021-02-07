@@ -51,6 +51,6 @@ public:
     };
     static vector<Loading::LoadingCallRecord*> *callRecord;
 public:
-    Loading(string text);;
+    explicit Loading(string text);;
     ~Loading();
 };
