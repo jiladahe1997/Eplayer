@@ -48,7 +48,7 @@ CURLcode NetEaseMusicClient::login(void) {
 
     //std::this_thread::sleep_for (std::chrono::seconds(2));    
 
-    loading->show();
+    //loading->show();
 
     ret = this->httpGet("182.92.164.220:3000/login/cellphone?phone=13320949321&password=Freedom1997",
             //std::bind(&NetEaseMusicClient::httpGetCB,this,_1,_2,_3,_4),
@@ -76,7 +76,7 @@ CURLcode NetEaseMusicClient::login(void) {
     //std::cout << "登录成功,cookie:" << j["cookie"] << std::endl;
     //qInfo("%s", j["cookie"].get<std::string>());
     qInfo() << "登录成功,cookie:" << QString::fromStdString((j["cookie"].get<std::string>())) << Qt::endl;
-    loading->hide();
+    //loading->hide();
 error1:
     free(httpRes.buffer);
 
