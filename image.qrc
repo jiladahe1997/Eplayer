@@ -8,5 +8,6 @@
         <file>下一首.png</file>
         <file>进度条.png</file>
         <file>loading.png</file>
+        <file>pause.png</file>
     </qresource>
 </RCC>

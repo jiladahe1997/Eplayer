@@ -104,7 +104,7 @@ CURLcode NetEaseMusicClient::httpGet(string url,
     return curl_easy_perform(easyhandle);
 }
 
-string NetEaseMusicClient::getRandomMusicUrl(void) {
+NetEaseMusicClient::SongInfo NetEaseMusicClient::getRandomMusicInfo(void) {
     /* 获取所有喜欢音乐 */
     struct HttpRes httpRes = {
         .size = 0,
@@ -119,17 +119,12 @@ string NetEaseMusicClient::getRandomMusicUrl(void) {
     memset((char*)httpRes.buffer+httpRes.size,0,1);
     httpRes.size+=1;
     long randomSongId=0;
+    int songCount=0;
+    nlohmann::json j1;
     try
     {
-        nlohmann::json j;
-        j = nlohmann::json::parse((char*)(httpRes.buffer));
-        int songCount = j["ids"].size();
-        random_device rd;
-        std::mt19937 gen(rd());
-        //default_random_engine e;
-        uniform_int_distribution<int> u(0, songCount-1);
-        int randomNum = u(gen);
-        randomSongId = j["ids"][randomNum].get<int64_t>();
+        j1 = nlohmann::json::parse((char*)(httpRes.buffer));
+        songCount = j1["ids"].size();
     }
     catch(const std::exception& e)
     {
@@ -138,35 +133,73 @@ string NetEaseMusicClient::getRandomMusicUrl(void) {
     }
 
     /* 获取指定音乐的链接 */
-    struct HttpRes httpRes2 = {
-        .size = 0,
-        .buffer = NULL
-    };
-    ret = this->httpGet("http://182.92.164.220:3000/song/url?id="+to_string(randomSongId), httpGetCB2, &httpRes2);
-    if(ret != CURLE_OK){
-        throw runtime_error("httpget error");
-    }
-    /* 末尾加/0 */
-    httpRes2.buffer = std::realloc(httpRes2.buffer ,httpRes2.size+1);
-    memset((char*)httpRes2.buffer+httpRes2.size,0,1);
-    httpRes2.size+=1;
     string url;
-    try
-    {
-        nlohmann::json j;
-        j = nlohmann::json::parse((char*)(httpRes2.buffer));
-        url = j["data"][0]["url"].get<string>();
+    while(url.size() == 0){
+        random_device rd;
+        std::mt19937 gen(rd());
+        //default_random_engine e;
+        uniform_int_distribution<int> u(0, songCount-1);
+        int randomNum = u(gen);
+        randomSongId = j1["ids"][randomNum].get<int64_t>();
+
+        struct HttpRes httpRes2 = {
+            .size = 0,
+            .buffer = NULL
+        };
+        ret = this->httpGet("http://182.92.164.220:3000/song/url?id="+to_string(randomSongId), httpGetCB2, &httpRes2);
+        if(ret != CURLE_OK){
+            throw runtime_error("httpget error");
+        }
+        /* 末尾加/0 */
+        httpRes2.buffer = std::realloc(httpRes2.buffer ,httpRes2.size+1);
+        memset((char*)httpRes2.buffer+httpRes2.size,0,1);
+        httpRes2.size+=1;
+        try
+        {
+            nlohmann::json j;
+            j = nlohmann::json::parse((char*)(httpRes2.buffer));
+            url = j["data"][0]["url"].get<string>();
+        }
+        catch(const std::exception& e)
+        {
+            qWarning("json parse error, input is %s",httpRes2.buffer);
+            throw &e;
+        }    
     }
-    catch(const std::exception& e)
+
+    string songName;
+    string singer;
+    string coverImgUrl;
+    /* 获取歌曲基本信息 */
     {
-        qWarning("json parse error, input is %s",httpRes2.buffer);
-        throw &e;
-    }    
-    return url;
+        struct HttpRes httpRes = {
+            .size = 0,
+            .buffer = NULL
+        };
+        CURLcode ret = this->httpGet("http://182.92.164.220:3000/song/detail?ids="+to_string(randomSongId), httpGetCB2, &httpRes);
+        if(ret != CURLE_OK){
+            throw runtime_error("httpget error");
+        }
+        /* 末尾加/0 */
+        httpRes.buffer = std::realloc(httpRes.buffer ,httpRes.size+1);
+        memset((char*)httpRes.buffer+httpRes.size,0,1);
+        httpRes.size+=1;
+        nlohmann::json j;
+        try
+        {
+            j = nlohmann::json::parse((char*)(httpRes.buffer));
+            songName = j["songs"][0]["name"].get<string>();
+            singer = j["songs"][0]["ar"][0]["name"].get<string>();
+            coverImgUrl = j["songs"][0]["al"]["picUrl"].get<string>();
+        }
+        catch(const std::exception& e)
+        {
+            qWarning("json parse error, input is %s",httpRes.buffer);
+            throw &e;
+        }
+    }
+    return NetEaseMusicClient::SongInfo(
+        songName,singer,coverImgUrl,url
+    );
     // return "https://jiladahe1997-1256609098.cos.ap-chengdu.myqcloud.com/test/obj_w5zDlMODwrDDiGjCn8Ky_3035941127_7a87_6039_5d37_67c00da5ea62d90bbea8cd2aa8092aac.mp3";
 }
-
-// NetEaseMusicClient::HttpRes::HttpRes(void){
-//     this->count=0;
-//     this->buffer=malloc(CURL_MAX_WRITE_SIZE);
-// }

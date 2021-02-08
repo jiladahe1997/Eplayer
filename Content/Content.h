@@ -6,10 +6,22 @@
 
 #include "NetEaseMusicClient.h"
 #include "Player.h"
+#include <QPushButton>
 
 class Content : public QWidget {
     Q_OBJECT
+private:
+    enum PlayStatus {
+        INIT,
+        STOP,
+        PLAYTING
+    };
+    PlayStatus playStatus;
 public:
+    QPushButton *controlPlay;
+    QLabel *coverImg;
+    QLabel *songName;
+    QLabel *singer;
     NetEaseMusicClient * netEaseMusicClient;
     Player * player;
 public:

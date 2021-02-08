@@ -28,9 +28,25 @@ private:
 private:
     static string cookie;
 public:
+    class SongInfo {
+    public:
+        string _songName;
+        string _singer;
+        string _coverImgUrl;
+        string _url;
+        SongInfo(
+            string songName,
+            string singer,
+            string coverImgUrl,
+            string url):
+            _songName(songName),
+            _singer(singer),
+            _coverImgUrl(coverImgUrl),
+            _url(url){};
+    };
     CURLcode login(void);
     NetEaseMusicClient(void);
-    string getRandomMusicUrl(void);
+    NetEaseMusicClient::SongInfo getRandomMusicInfo(void);
 };
 
 #endif // NetEaseMusicClient
