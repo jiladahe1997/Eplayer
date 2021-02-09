@@ -20,11 +20,11 @@ NetEaseMusicClient::NetEaseMusicClient(){
 /**
  * c++中使用curl不能传对象成员函数，否则会报错
  */
-size_t NetEaseMusicClient::httpGetCB(void * buffer, size_t size, size_t nmemb, void * userp){
-    qInfo() << "触发http回调" << Qt::endl << "接收到内容:" << Qt::endl;
-    //qInfo() << (char*)buffer << Qt::endl;
-    return nmemb;
-}
+//size_t NetEaseMusicClient::httpGetCB(void * buffer, size_t size, size_t nmemb, void * userp){
+//    qInfo() << "触发http回调" << Qt::endl << "接收到内容:" << Qt::endl;
+//    //qInfo() << (char*)buffer << Qt::endl;
+//    return nmemb;
+//}
 
 static size_t httpGetCB2(void * buffer, size_t size, size_t nmemb, void * userp){
     qInfo() << "触发http回调" << Qt::endl << "接收到内容:" << Qt::endl;
@@ -34,6 +34,7 @@ static size_t httpGetCB2(void * buffer, size_t size, size_t nmemb, void * userp)
     memset((char*)httpRes->buffer+httpRes->size,0,nmemb);
     memcpy((char*)httpRes->buffer+httpRes->size,buffer,nmemb);
     httpRes->size+=nmemb;
+    (void)size;
     return nmemb;
 }
 
@@ -73,7 +74,7 @@ CURLcode NetEaseMusicClient::login(void) {
     }
     catch(const std::exception& e)
     {
-        qWarning("json parse error, input is %s",httpRes.buffer);
+        qWarning("json parse error, input is %s", (char*)httpRes.buffer);
         goto error1;
     }
     //std::cout << "登录成功,cookie:" << j["cookie"] << std::endl;
@@ -84,7 +85,6 @@ CURLcode NetEaseMusicClient::login(void) {
 error1:
     free(httpRes.buffer);
 
-error:
     return ret;
 
 }
@@ -128,7 +128,7 @@ NetEaseMusicClient::SongInfo NetEaseMusicClient::getRandomMusicInfo(void) {
     }
     catch(const std::exception& e)
     {
-        qWarning("json parse error, input is %s",httpRes.buffer);
+        qWarning("json parse error, input is %s", (char*)httpRes.buffer);
         throw &e;
     }
 
@@ -158,11 +158,13 @@ NetEaseMusicClient::SongInfo NetEaseMusicClient::getRandomMusicInfo(void) {
         {
             nlohmann::json j;
             j = nlohmann::json::parse((char*)(httpRes2.buffer));
+            if(j["data"][0]["url"].is_null())
+                continue;
             url = j["data"][0]["url"].get<string>();
         }
         catch(const std::exception& e)
         {
-            qWarning("json parse error, input is %s",httpRes2.buffer);
+            qWarning("json parse error, input is %s", (char*)httpRes2.buffer);
             throw &e;
         }    
     }
@@ -194,7 +196,7 @@ NetEaseMusicClient::SongInfo NetEaseMusicClient::getRandomMusicInfo(void) {
         }
         catch(const std::exception& e)
         {
-            qWarning("json parse error, input is %s",httpRes.buffer);
+            qWarning("json parse error, input is %s",(char*) httpRes.buffer);
             throw &e;
         }
     }

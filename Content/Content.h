@@ -17,6 +17,12 @@ private:
         PLAYTING
     };
     PlayStatus playStatus;
+    vector<NetEaseMusicClient::SongInfo> playHistory;
+    void playPreSong(void);
+    void playNextSong(void);
+    void playSongByUrl(string url);
+    void playStart(void);
+    void changeUiBySongInfo(NetEaseMusicClient::SongInfo songInfo);
 public:
     QPushButton *controlPlay;
     QLabel *coverImg;
@@ -24,10 +30,12 @@ public:
     QLabel *singer;
     NetEaseMusicClient * netEaseMusicClient;
     Player * player;
-public:
     Content(QWidget * parent = nullptr);
 public slots: 
     bool onPlayeClick(void);
+    void onNextSongClick(void);
+    void onPreSongClick(void);
+    void onPlayerStatusChange(QMediaPlayer::MediaStatus status);
 };
 
 #endif  // CONTENT_H

@@ -19,9 +19,9 @@ Loading::Loading(string text) {
 }
 
 Loading::~Loading(){    
-    if(this->labelImg == nullptr || this->labelText == nullptr){
-        throw runtime_error("必须先在Contnet中初始化label");
-    }
+//    if(this->labelImg == nullptr || this->labelText == nullptr){
+//        throw runtime_error("必须先在Contnet中初始化label");
+//    }
     for(vector<LoadingCallRecord*>::iterator iter=this->callRecord->begin();iter!=this->callRecord->end();){
         if((*iter)->_loading == this){
             delete(*iter);

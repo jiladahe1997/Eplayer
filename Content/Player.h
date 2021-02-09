@@ -21,6 +21,8 @@ public:
     bool playNewByUrl(string url);
     bool play(void);
     bool stop(void);
+signals:
+    void PlayerStatusChange(QMediaPlayer::MediaStatus status);
 public slots: 
     void onMeidaChange(QMediaPlayer::MediaStatus status);
 };
