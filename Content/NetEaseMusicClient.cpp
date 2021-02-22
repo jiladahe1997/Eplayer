@@ -54,7 +54,7 @@ CURLcode NetEaseMusicClient::login(void) {
 
     //loading->show();
 
-    ret = this->httpGet("182.92.164.220:3000/login/cellphone?phone=13320949321&password=Freedom1997",
+    ret = this->httpGet("http://182.92.164.220:3000/login?email=13320949321@163.com&password=Freedom1997",
             //std::bind(&NetEaseMusicClient::httpGetCB,this,_1,_2,_3,_4),
             httpGetCB2,
             &httpRes);
