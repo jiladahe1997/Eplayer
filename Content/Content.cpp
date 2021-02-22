@@ -194,11 +194,12 @@ void Content::playNextSong(void) {
     Loading *loading = new Loading("获取歌曲信息中");
     NetEaseMusicClient::SongInfo songInfo = this->netEaseMusicClient->getRandomMusicInfo();
 
+    delete(loading);
     /* 替换歌曲名、封面图 */
+    loading = new Loading("获取封面中");
     this->changeUiBySongInfo(songInfo);
-
+    delete(loading);
 
     this->playHistory.push_back(songInfo);
     this->playSongByUrl(songInfo._url);
-    delete(loading);
 }
