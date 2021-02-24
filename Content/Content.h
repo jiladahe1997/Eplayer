@@ -23,11 +23,13 @@ private:
     void playSongByUrl(string url);
     void playStart(void);
     void changeUiBySongInfo(NetEaseMusicClient::SongInfo songInfo);
+    void updateProcessText();  //线程函数，每秒更新进度条文字
 public:
     QPushButton *controlPlay;
     QLabel *coverImg;
     QLabel *songName;
     QLabel *singer;
+    QLabel *processText;       //进度条文字
     NetEaseMusicClient * netEaseMusicClient;
     Player * player;
     Content(QWidget * parent = nullptr);

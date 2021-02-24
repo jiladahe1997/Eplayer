@@ -1,10 +1,12 @@
 #include "Content.h"
 #include <string>
 #include <thread>
+#include <sstream>
 #include "Loading.h"
 #include <QEventLoop>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QThread>
 
 using namespace std;
 Content::Content(QWidget * parent):
@@ -66,8 +68,12 @@ Content::Content(QWidget * parent):
     process->setGeometry(814,618,282,14);
     process->setScaledContents(true);
 
-    Loading::init(parent);
+    processText = new QLabel(parent);
+    processText->setText("");
+    processText->setAlignment(Qt::AlignCenter);
+    processText->setGeometry(814,600,282,16);
 
+    Loading::init(parent);
 
     this->netEaseMusicClient = new NetEaseMusicClient();
     this->player = new Player();
@@ -76,6 +82,9 @@ Content::Content(QWidget * parent):
     connect(controlNext, &QPushButton::clicked, this, &Content::onNextSongClick);
     connect(controlPre, &QPushButton::clicked, this, &Content::onPreSongClick);
     connect(player, &Player::PlayerStatusChange, this, &Content::onPlayerStatusChange);
+
+    std::thread t(&Content::updateProcessText, this);
+    t.detach();
 }
 
 void Content::playStart(void) {
@@ -202,4 +211,19 @@ void Content::playNextSong(void) {
 
     this->playHistory.push_back(songInfo);
     this->playSongByUrl(songInfo._url);
+
+    /* 启动一个线程，每秒刷新进度条 */
+    //先结束上一个线程
+}
+
+void Content::updateProcessText() {
+    while(1){
+        int64_t position = this->player->getPosition()/1000;
+        int64_t duration = this->player->getDuration()/1000;
+        std::ostringstream osstr;
+        osstr << position/60 << ":" << position%60 << "/" << 
+            duration/60 << ":" << duration%60 << endl;
+        this->processText->setText(QString::fromStdString(osstr.str()));
+        QThread::msleep(100);
+    } 
 }
